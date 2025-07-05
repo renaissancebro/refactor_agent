@@ -8,7 +8,6 @@ from pathlib import Path
 from io import StringIO
 from contextlib import redirect_stdout
 from datetime import datetime
-import shutil
 
 BACKEND_FILE = "../backend/main.py"
 PREVIEW_MODE = True
@@ -26,24 +25,34 @@ class CaptureUserOutput:
         self.output = self.buffer.getvalue()
 
 
-def create_timestamped_directories():
-    """Create before/after directories with timestamp"""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+def log_refactor_output(preview_dict: dict, original_file: Path, refactor_dir: Path):
+    """
+    Log the refactor output to a JSON file for tracking and debugging.
 
-    # Create main refactor directory
-    refactor_dir = Path(f"refactor_output_{timestamp}")
-    refactor_dir.mkdir(exist_ok=True)
+    Args:
+        preview_dict: Dictionary containing the agent's refactor response
+        original_file: Path to the original file that was refactored
+        refactor_dir: Path to the refactor agent directory
+    """
+    # Create refactor_logs directory if it doesn't exist
+    logs_dir = refactor_dir / "refactor_logs"
+    logs_dir.mkdir(exist_ok=True)
 
-    # Create subdirectories
-    before_dir = refactor_dir / "before"
-    after_dir = refactor_dir / "after"
-    utils_dir = refactor_dir / "utils"
+    # Create timestamp for filename
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H%M")
+    log_filename = logs_dir / f"{timestamp}.json"
 
-    before_dir.mkdir(exist_ok=True)
-    after_dir.mkdir(exist_ok=True)
-    utils_dir.mkdir(exist_ok=True)
+    # Add metadata to the dictionary
+    log_data = preview_dict.copy()
+    log_data["original_file"] = str(original_file.absolute())
+    log_data["refactor_timestamp"] = timestamp
+    log_data["runner_called"] = True
 
-    return refactor_dir, before_dir, after_dir, utils_dir, timestamp
+    # Save to JSON file with UTF-8 encoding and indentation
+    with open(log_filename, "w", encoding="utf-8") as f:
+        json.dump(log_data, f, indent=2, ensure_ascii=False)
+
+    print(f"📝 Refactor log saved: {log_filename}")
 
 
 def run_refactor_agent():
@@ -51,21 +60,11 @@ def run_refactor_agent():
         print(f"❌ Source file not found: {BACKEND_FILE}")
         return
 
-    # Create timestamped directories
-    refactor_dir, before_dir, after_dir, utils_dir, timestamp = create_timestamped_directories()
-
-    print(f"📁 Created refactor directories: {refactor_dir}")
-    print(f"⏰ Timestamp: {timestamp}")
+    print(f"🔧 Refactoring: {BACKEND_FILE}")
+    print(f"⏰ Timestamp: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     with open(BACKEND_FILE, "r") as f:
         source_code = f.read()
-
-    # Save original file to before directory
-    original_filename = Path(BACKEND_FILE).name
-    before_file = before_dir / original_filename
-    with open(before_file, "w") as f:
-        f.write(source_code)
-    print(f"💾 Saved original file to: {before_file}")
 
     # Optional: local AST preview
     print("\n🔍 AST-extracted functions (local preview):")
@@ -132,26 +131,31 @@ def run_refactor_agent():
         else:
             print(f"\n📄 {filename} Preview:\n{'='*40}\n{content}\n")
 
+    # Log the refactor output
+    log_refactor_output(preview_dict, Path(BACKEND_FILE), Path(__file__).parent)
+
     if not PREVIEW_MODE:
-        # Write files to appropriate directories
-        print(f"\n💾 Writing files to {refactor_dir}...")
+        # Write files directly to the backend directory
+        print(f"\n💾 Writing files to backend directory...")
 
-        # Write refactored main file to after directory
+        # Write refactored main file
         if 'refactored_main' in preview_dict:
-            after_file = after_dir / original_filename
-            with open(after_file, "w") as f:
+            with open(BACKEND_FILE, "w") as f:
                 f.write(preview_dict['refactored_main'])
-            print(f"✅ Refactored main file: {after_file}")
+            print(f"✅ Refactored main file: {BACKEND_FILE}")
 
-        # Write backup file to before directory
+        # Write backup file
         if 'backup_file' in preview_dict:
-            backup_file = before_dir / f"{Path(original_filename).stem}_backup.py"
+            backup_file = Path(BACKEND_FILE).with_suffix('.backup')
             with open(backup_file, "w") as f:
                 f.write(preview_dict['backup_file'])
             print(f"✅ Backup file: {backup_file}")
 
         # Write utility modules to utils directory
         if 'utility_modules' in preview_dict:
+            utils_dir = Path(BACKEND_FILE).parent / "utils"
+            utils_dir.mkdir(exist_ok=True)
+
             for util_name, util_content in preview_dict['utility_modules'].items():
                 # Remove 'utils/' prefix if present
                 clean_name = util_name.replace('utils/', '')
@@ -160,7 +164,7 @@ def run_refactor_agent():
                     f.write(util_content)
                 print(f"✅ Utility module: {util_file}")
 
-        print(f"\n🎉 Refactoring complete! Check: {refactor_dir}")
+        print(f"\n🎉 Refactoring complete!")
     else:
         print("\n✋ Preview only — no files were written.")
         print("💡 To accept these changes, run the same command with PREVIEW_MODE = False")
@@ -169,24 +173,26 @@ def run_refactor_agent():
         try:
             accept = input("\n🤔 Would you like to accept these changes? (y/N): ").strip().lower()
             if accept in ['y', 'yes']:
-                print(f"\n💾 Writing files to {refactor_dir}...")
+                print(f"\n💾 Writing files to backend directory...")
 
-                # Write refactored main file to after directory
+                # Write refactored main file
                 if 'refactored_main' in preview_dict:
-                    after_file = after_dir / original_filename
-                    with open(after_file, "w") as f:
+                    with open(BACKEND_FILE, "w") as f:
                         f.write(preview_dict['refactored_main'])
-                    print(f"✅ Refactored main file: {after_file}")
+                    print(f"✅ Refactored main file: {BACKEND_FILE}")
 
-                # Write backup file to before directory
+                # Write backup file
                 if 'backup_file' in preview_dict:
-                    backup_file = before_dir / f"{Path(original_filename).stem}_backup.py"
+                    backup_file = Path(BACKEND_FILE).with_suffix('.backup')
                     with open(backup_file, "w") as f:
                         f.write(preview_dict['backup_file'])
                     print(f"✅ Backup file: {backup_file}")
 
                 # Write utility modules to utils directory
                 if 'utility_modules' in preview_dict:
+                    utils_dir = Path(BACKEND_FILE).parent / "utils"
+                    utils_dir.mkdir(exist_ok=True)
+
                     for util_name, util_content in preview_dict['utility_modules'].items():
                         # Remove 'utils/' prefix if present
                         clean_name = util_name.replace('utils/', '')
@@ -195,7 +201,7 @@ def run_refactor_agent():
                             f.write(util_content)
                         print(f"✅ Utility module: {util_file}")
 
-                print(f"\n🎉 Changes accepted! Check: {refactor_dir}")
+                print(f"\n🎉 Changes accepted!")
             else:
                 print("❌ Changes not applied.")
         except KeyboardInterrupt:
