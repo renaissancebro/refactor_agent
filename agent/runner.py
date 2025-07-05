@@ -2,13 +2,13 @@
 import os
 import ast
 import json
-from agent.main_agent import assistant, user
-from agent.tools import extract_top_level_functions
+from main_agent import assistant, user
+from tools import extract_top_level_functions
 from pathlib import Path
 from io import StringIO
 from contextlib import redirect_stdout
 
-BACKEND_FILE = "backend/main.py"
+BACKEND_FILE = "../backend/main.py"
 PREVIEW_MODE = True
 
 

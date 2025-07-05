@@ -15,20 +15,27 @@ You are a professional software refactor agent. When given source code, you:
 1. Identify reusable components and group them logically
 2. Extract them to proper utility modules (e.g., io.py, string_utils.py)
 3. Generate clean import statements for main files
-4. Return a preview-only output as a dictionary of files
-5. Await confirmation before making actual file edits
+4. Return a structured output with:
+   - 'refactored_main': The refactored version of the original file
+   - 'backup_file': The old boilerplate logic to be saved to a separate file
+   - 'utility_modules': Dictionary of extracted utility modules
+5. Format output as JSON for easy parsing
+6. Await confirmation before making actual file edits
 """
 
 assistant = AssistantAgent(
     name="RefactorAgent",
     system_message=system_prompt,
-    llm_config={"config_list": config_list}
+    llm_config={"config_list": config_list},
+    max_consecutive_auto_reply=1  # Limit to 1 auto-reply to prevent loops
 )
 
 user = UserProxyAgent(
     name="Developer",
     human_input_mode="NEVER",
-    llm_config={"config_list": config_list}
+    llm_config={"config_list": config_list},
+    code_execution_config={"use_docker": False},
+    max_consecutive_auto_reply=1  # Limit to 1 auto-reply to prevent loops
 )
 
 def main():
