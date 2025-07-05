@@ -11,7 +11,7 @@ from datetime import datetime
 import shutil
 
 BACKEND_FILE = "../backend/main.py"
-PREVIEW_MODE = False
+PREVIEW_MODE = True
 
 
 class CaptureUserOutput:
@@ -162,7 +162,46 @@ def run_refactor_agent():
 
         print(f"\n🎉 Refactoring complete! Check: {refactor_dir}")
     else:
-        print("\n✋ Preview only — no files were written. Set PREVIEW_MODE = False to apply.")
+        print("\n✋ Preview only — no files were written.")
+        print("💡 To accept these changes, run the same command with PREVIEW_MODE = False")
+
+        # Ask user if they want to accept the preview
+        try:
+            accept = input("\n🤔 Would you like to accept these changes? (y/N): ").strip().lower()
+            if accept in ['y', 'yes']:
+                print(f"\n💾 Writing files to {refactor_dir}...")
+
+                # Write refactored main file to after directory
+                if 'refactored_main' in preview_dict:
+                    after_file = after_dir / original_filename
+                    with open(after_file, "w") as f:
+                        f.write(preview_dict['refactored_main'])
+                    print(f"✅ Refactored main file: {after_file}")
+
+                # Write backup file to before directory
+                if 'backup_file' in preview_dict:
+                    backup_file = before_dir / f"{Path(original_filename).stem}_backup.py"
+                    with open(backup_file, "w") as f:
+                        f.write(preview_dict['backup_file'])
+                    print(f"✅ Backup file: {backup_file}")
+
+                # Write utility modules to utils directory
+                if 'utility_modules' in preview_dict:
+                    for util_name, util_content in preview_dict['utility_modules'].items():
+                        # Remove 'utils/' prefix if present
+                        clean_name = util_name.replace('utils/', '')
+                        util_file = utils_dir / clean_name
+                        with open(util_file, "w") as f:
+                            f.write(util_content)
+                        print(f"✅ Utility module: {util_file}")
+
+                print(f"\n🎉 Changes accepted! Check: {refactor_dir}")
+            else:
+                print("❌ Changes not applied.")
+        except KeyboardInterrupt:
+            print("\n❌ Operation cancelled by user.")
+        except Exception as e:
+            print(f"❌ Error applying changes: {e}")
 
 
 if __name__ == "__main__":
