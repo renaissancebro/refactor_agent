@@ -75,14 +75,24 @@ source ~/.zshrc
 **Use from any project:**
 
 ```bash
-# Refactor any Python file
+# Refactor any Python file (applies changes immediately)
 refactor my_file.py
 
+# Different improvement types
+refactor --type refactor my_file.py      # Extract utilities (default)
+refactor --type optimize my_file.py      # Performance optimization
+refactor --type document my_file.py      # Add documentation
+refactor --type style my_file.py         # PEP 8 style improvements
+refactor --type security my_file.py      # Security improvements
+
 # Preview only
-refactor complex_module.py --preview
+refactor --preview complex_module.py
 
 # No backup
-refactor utils.py --no-backup
+refactor --no-backup utils.py
+
+# Combine options
+refactor --type optimize --preview my_file.py
 ```
 
 ### Option 2: Runner Script
@@ -186,8 +196,9 @@ your_project/
 
 ### Preview & Confirmation
 
-- **Preview mode** - See changes before applying
-- **Interactive prompts** - Confirm before accepting changes
+- **Immediate application** - Changes applied by default for faster workflow
+- **Preview mode** - Use `--preview` flag to see changes before applying
+- **Backup protection** - Automatic backups ensure you can always rollback
 - **Rollback capability** - Use backup files to restore original code
 
 ### Error Handling

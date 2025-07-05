@@ -49,12 +49,33 @@ def log_refactor_output(preview_dict: dict, original_file: Path, refactor_dir: P
 
     print(f"📝 Refactor log saved: {log_filename}")
 
-def refactor_file(file_path: str, preview_only: bool = False, backup: bool = True):
+def get_suggestion_prompt(suggestion_type: str) -> str:
+    """
+    Get the appropriate prompt based on suggestion type.
+
+    Args:
+        suggestion_type: Type of suggestion (refactor, optimize, document, style, security)
+
+    Returns:
+        Formatted prompt string
+    """
+    prompts = {
+        "refactor": "Refactor this Python code by extracting reusable components into utility modules. Focus on code organization and modularity.",
+        "optimize": "Optimize this Python code for performance, efficiency, and best practices. Suggest improvements for speed, memory usage, and algorithm efficiency.",
+        "document": "Add comprehensive documentation to this Python code. Include docstrings, comments, and type hints to improve code readability and maintainability.",
+        "style": "Improve the code style and formatting according to PEP 8 standards. Focus on naming conventions, spacing, and overall code aesthetics.",
+        "security": "Review this Python code for security vulnerabilities and suggest improvements. Focus on input validation, error handling, and secure coding practices."
+    }
+
+    return prompts.get(suggestion_type, prompts["refactor"])
+
+def refactor_file(file_path: str, suggestion_type: str = "refactor", preview_only: bool = False, backup: bool = True):
     """
     Refactor a single file in place.
 
     Args:
         file_path: Path to the file to refactor
+        suggestion_type: Type of suggestion (refactor, optimize, document, style, security)
         preview_only: If True, only show preview without applying changes
         backup: If True, create a backup of the original file
     """
@@ -72,7 +93,7 @@ def refactor_file(file_path: str, preview_only: bool = False, backup: bool = Tru
         print("❌ OPENAI_API_KEY environment variable not set")
         return False
 
-    print(f"🔧 Refactoring: {file_path}")
+    print(f"🔧 {suggestion_type.title()}ing: {file_path}")
 
     # Read the original file
     with open(file_path, "r", encoding="utf-8") as f:
@@ -85,12 +106,19 @@ def refactor_file(file_path: str, preview_only: bool = False, backup: bool = Tru
             f.write(original_content)
         print(f"💾 Backup created: {backup_path}")
 
+    # Get suggestion prompt
+    suggestion_prompt = get_suggestion_prompt(suggestion_type)
+
     # Send to agent
     message = f"""
-    Please refactor this Python code and return the structured JSON output.
-    Extract reusable components into utility modules.
+    {suggestion_prompt}
 
-    Code to refactor:
+    Return the structured JSON output with these exact keys:
+    - 'refactored_main': The improved version of the original file
+    - 'backup_file': The old code to be saved to a separate file
+    - 'utility_modules': Dictionary of extracted utility modules (filename -> code)
+
+    Code to improve:
     ```python
     {original_content}
     ```
@@ -124,7 +152,7 @@ def refactor_file(file_path: str, preview_only: bool = False, backup: bool = Tru
 
                 # Show preview
                 if 'refactored_main' in parsed_response:
-                    print(f"\n📄 Refactored main file ({len(parsed_response['refactored_main'])} characters):")
+                    print(f"\n📄 Improved main file ({len(parsed_response['refactored_main'])} characters):")
                     print("=" * 50)
                     print(parsed_response['refactored_main'])
                     print("=" * 50)
@@ -134,41 +162,32 @@ def refactor_file(file_path: str, preview_only: bool = False, backup: bool = Tru
                     for util_name, util_content in parsed_response['utility_modules'].items():
                         print(f"   - {util_name}: {len(util_content)} characters")
 
-                # Ask for confirmation if not preview only
-                if not preview_only:
-                    try:
-                        accept = input(f"\n🤔 Apply refactor to {file_path}? (y/N): ").strip().lower()
-                        if accept in ['y', 'yes']:
-                            # Apply the refactor
-                            with open(file_path, "w", encoding="utf-8") as f:
-                                f.write(parsed_response['refactored_main'])
-                            print(f"✅ Refactor applied to: {file_path}")
-
-                            # Log the refactor
-                            log_refactor_output(parsed_response, file_path, current_dir)
-
-                            # Create utility files in the same directory
-                            if 'utility_modules' in parsed_response:
-                                utils_dir = file_path.parent / "utils"
-                                utils_dir.mkdir(exist_ok=True)
-
-                                for util_name, util_content in parsed_response['utility_modules'].items():
-                                    # Remove 'utils/' prefix if present
-                                    clean_name = util_name.replace('utils/', '')
-                                    util_file = utils_dir / clean_name
-                                    with open(util_file, "w", encoding="utf-8") as f:
-                                        f.write(util_content)
-                                    print(f"✅ Utility module: {util_file}")
-
-                            return True
-                        else:
-                            print("❌ Refactor not applied.")
-                            return False
-                    except KeyboardInterrupt:
-                        print("\n❌ Operation cancelled by user.")
-                        return False
-                else:
+                # Apply changes immediately by default, or ask for confirmation if preview mode
+                if preview_only:
                     print("\n✋ Preview only - no changes applied.")
+                    return True
+                else:
+                    # Apply the changes immediately
+                    with open(file_path, "w", encoding="utf-8") as f:
+                        f.write(parsed_response['refactored_main'])
+                    print(f"✅ Changes applied to: {file_path}")
+
+                    # Log the refactor
+                    log_refactor_output(parsed_response, file_path, current_dir)
+
+                    # Create utility files in the same directory
+                    if 'utility_modules' in parsed_response:
+                        utils_dir = file_path.parent / "utils"
+                        utils_dir.mkdir(exist_ok=True)
+
+                        for util_name, util_content in parsed_response['utility_modules'].items():
+                            # Remove 'utils/' prefix if present
+                            clean_name = util_name.replace('utils/', '')
+                            util_file = utils_dir / clean_name
+                            with open(util_file, "w", encoding="utf-8") as f:
+                                f.write(util_content)
+                            print(f"✅ Utility module: {util_file}")
+
                     return True
             else:
                 print("⚠️ No JSON block found in the response")
@@ -179,12 +198,14 @@ def refactor_file(file_path: str, preview_only: bool = False, backup: bool = Tru
             return False
 
     except Exception as e:
-        print(f"❌ Error during refactoring: {e}")
+        print(f"❌ Error during processing: {e}")
         return False
 
 def main():
-    parser = argparse.ArgumentParser(description="Refactor Python files using AI agent")
-    parser.add_argument("file", help="Path to the Python file to refactor")
+    parser = argparse.ArgumentParser(description="Improve Python files using AI agent")
+    parser.add_argument("file", help="Path to the Python file to improve")
+    parser.add_argument("--type", "-t", choices=["refactor", "optimize", "document", "style", "security"],
+                       default="refactor", help="Type of improvement to apply (default: refactor)")
     parser.add_argument("--preview", "-p", action="store_true",
                        help="Show preview only, don't apply changes")
     parser.add_argument("--no-backup", action="store_true",
@@ -195,14 +216,15 @@ def main():
     # Run the refactor
     success = refactor_file(
         file_path=args.file,
+        suggestion_type=args.type,
         preview_only=args.preview,
         backup=not args.no_backup
     )
 
     if success:
-        print("\n🎉 Refactor operation completed successfully!")
+        print("\n🎉 Operation completed successfully!")
     else:
-        print("\n❌ Refactor operation failed.")
+        print("\n❌ Operation failed.")
         sys.exit(1)
 
 if __name__ == "__main__":
