@@ -258,3 +258,26 @@ You can also call the CLI from your IDE's terminal or create custom commands/sho
 ---
 
 **Now you can refactor any Python file from anywhere with a simple `refactor filename.py` command!** 🚀
+
+
+# 🛠 CLI Setup Guide
+
+The `refactor` command-line tool is now globally available via a shell alias.
+
+---
+
+## ✅ What’s Set Up
+
+- Alias added to `.zshrc`
+- Automatically activates virtual environment
+- Runs `refactor_cli.py` with any arguments
+- Works from **any directory**
+
+---
+
+## 🚀 How to Use
+
+```bash
+refactor --help
+refactor my_file.py --preview
+refactor main.py --no-backup

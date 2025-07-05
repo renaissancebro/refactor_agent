@@ -6,5 +6,10 @@
 # Get the directory where this script is located
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Activate virtual environment if it exists
+if [ -f "$SCRIPT_DIR/venv/bin/activate" ]; then
+    source "$SCRIPT_DIR/venv/bin/activate"
+fi
+
 # Run the refactor CLI tool
 python3 "$SCRIPT_DIR/refactor_cli.py" "$@"
