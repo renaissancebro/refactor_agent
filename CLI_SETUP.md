@@ -31,7 +31,7 @@ echo 'export OPENAI_API_KEY="your-api-key-here"' >> ~/.zshrc
 ### Basic Usage
 
 ```bash
-# Refactor any Python file
+# Refactor any Python file (applies changes immediately)
 refactor my_file.py
 
 # Preview only (don't apply changes)
@@ -41,17 +41,41 @@ refactor my_file.py --preview
 refactor my_file.py --no-backup
 ```
 
+### Suggestion Categories
+
+```bash
+# Different types of improvements
+refactor --type refactor my_file.py      # Extract utilities (default)
+refactor --type optimize my_file.py      # Performance optimization
+refactor --type document my_file.py      # Add documentation & type hints
+refactor --type style my_file.py         # PEP 8 style improvements
+refactor --type security my_file.py      # Security improvements
+
+# Combine with other options
+refactor --type optimize --preview my_file.py
+refactor --type document --no-backup my_file.py
+```
+
 ### Real-World Examples
 
 ```bash
-# Refactor a Django view
+# Refactor a Django view (extract utilities)
 refactor views.py
 
-# Preview a complex module
-refactor complex_module.py --preview
+# Optimize performance of a data processing script
+refactor --type optimize data_processor.py
 
-# Refactor without backup (if you're confident)
-refactor utils.py --no-backup
+# Add comprehensive documentation
+refactor --type document api_client.py
+
+# Improve code style and formatting
+refactor --type style utils.py
+
+# Security review of authentication code
+refactor --type security auth.py
+
+# Preview complex changes before applying
+refactor --type optimize complex_module.py --preview
 ```
 
 ## 📁 What Happens When You Run It
@@ -60,22 +84,24 @@ refactor utils.py --no-backup
 
 - ✅ Reads your current file
 - ✅ Creates a `.backup` file (unless `--no-backup`)
-- ✅ Sends to AI agent for refactoring
+- ✅ Sends to AI agent for improvement
 
-### 2. AI Refactoring
+### 2. AI Improvement
 
-- ✅ Analyzes your code
-- ✅ Extracts reusable components
-- ✅ Creates utility modules
-- ✅ Generates clean imports
+- ✅ Analyzes your code based on improvement type
+- ✅ Extracts reusable components (refactor mode)
+- ✅ Optimizes performance (optimize mode)
+- ✅ Adds documentation (document mode)
+- ✅ Improves style (style mode)
+- ✅ Reviews security (security mode)
 
 ### 3. File Organization
 
 ```
 your_project/
-├── your_file.py              # Refactored main file
+├── your_file.py              # Improved main file
 ├── your_file.py.backup       # Original backup
-└── utils/                    # Extracted utilities
+└── utils/                    # Extracted utilities (if any)
     ├── file_io.py
     ├── api_utils.py
     └── logging_utils.py
@@ -83,7 +109,7 @@ your_project/
 
 ### 4. Logging
 
-- ✅ Saves complete refactor data to `refactor_agent/refactor_logs/`
+- ✅ Saves complete improvement data to `refactor_agent/refactor_logs/`
 - ✅ Includes file paths, timestamps, and metadata
 - ✅ Enables debugging and tracking
 
@@ -94,15 +120,15 @@ your_project/
 - ✅ Always creates `.backup` file (unless disabled)
 - ✅ Original code is never lost
 
-### 2. Preview Mode
+### 2. Immediate Application
+
+- ✅ Changes applied immediately by default
+- ✅ Faster workflow for confident users
+
+### 3. Preview Mode
 
 - ✅ `--preview` shows changes without applying
-- ✅ Review before accepting
-
-### 3. Interactive Confirmation
-
-- ✅ Asks for confirmation before applying
-- ✅ Type `y` to accept, anything else to cancel
+- ✅ Review before accepting when needed
 
 ### 4. Error Handling
 
@@ -119,6 +145,11 @@ your_project/
 for file in *.py; do
     refactor "$file" --preview
 done
+
+# Optimize all files in a directory
+for file in *.py; do
+    refactor --type optimize "$file"
+done
 ```
 
 ### Integration with Git
@@ -128,6 +159,11 @@ done
 refactor my_file.py
 git add .
 git commit -m "Refactored my_file.py using AI agent"
+
+# Optimize and commit
+refactor --type optimize performance_critical.py
+git add .
+git commit -m "Optimized performance_critical.py"
 ```
 
 ### Custom Workflow
@@ -137,6 +173,11 @@ git commit -m "Refactored my_file.py using AI agent"
 refactor complex_file.py --preview
 # If happy with preview:
 refactor complex_file.py
+
+# Document all files in a project
+for file in *.py; do
+    refactor --type document "$file"
+done
 ```
 
 ## 📊 Logging and Tracking
@@ -210,33 +251,39 @@ python refactor_cli.py your_file.py --preview
 - ✅ Works with any Python file
 - ✅ No need to copy files around
 
-### 2. In-Place Refactoring
+### 2. Specialized Improvements
 
-- ✅ Refactors your current file directly
+- ✅ Choose exactly what you want to improve
+- ✅ Refactor, optimize, document, style, or secure
+- ✅ Tailored AI prompts for each improvement type
+
+### 3. In-Place Improvement
+
+- ✅ Improves your current file directly
 - ✅ Creates utilities in the same project
 - ✅ Maintains project structure
 
-### 3. Complete Logging
+### 4. Complete Logging
 
-- ✅ All refactors tracked centrally
+- ✅ All improvements tracked centrally
 - ✅ Easy debugging and rollback
 - ✅ Historical record of changes
 
-### 4. Safety First
+### 5. Safety First
 
 - ✅ Always creates backups
-- ✅ Preview before applying
-- ✅ Interactive confirmation
+- ✅ Immediate application for speed
+- ✅ Preview mode when needed
 
 ## 🔄 Workflow Integration
 
 ### Typical Workflow
 
 1. **Write code** in your project
-2. **Call refactor** when ready to clean up
-3. **Review preview** to see changes
-4. **Accept changes** if satisfied
-5. **Test refactored code**
+2. **Choose improvement type** based on your needs
+3. **Call refactor** with appropriate flags
+4. **Review changes** (if using preview mode)
+5. **Test improved code**
 6. **Commit to version control**
 
 ### IDE Integration
@@ -255,10 +302,41 @@ You can also call the CLI from your IDE's terminal or create custom commands/sho
 }
 ```
 
+## 🎯 Improvement Types Explained
+
+### `--type refactor` (Default)
+
+- Extracts reusable functions into utility modules
+- Improves code organization and modularity
+- Creates clean import statements
+
+### `--type optimize`
+
+- Focuses on performance improvements
+- Suggests algorithm optimizations
+- Improves memory usage and efficiency
+
+### `--type document`
+
+- Adds comprehensive docstrings
+- Includes type hints
+- Improves code readability and maintainability
+
+### `--type style`
+
+- Applies PEP 8 formatting standards
+- Improves naming conventions
+- Enhances overall code aesthetics
+
+### `--type security`
+
+- Reviews for security vulnerabilities
+- Suggests input validation improvements
+- Focuses on secure coding practices
+
 ---
 
-**Now you can refactor any Python file from anywhere with a simple `refactor filename.py` command!** 🚀
-
+**Now you can improve any Python file from anywhere with specialized AI assistance!** 🚀
 
 # 🛠 CLI Setup Guide
 
@@ -266,7 +344,7 @@ The `refactor` command-line tool is now globally available via a shell alias.
 
 ---
 
-## ✅ What’s Set Up
+## ✅ What's Set Up
 
 - Alias added to `.zshrc`
 - Automatically activates virtual environment
@@ -281,3 +359,4 @@ The `refactor` command-line tool is now globally available via a shell alias.
 refactor --help
 refactor my_file.py --preview
 refactor main.py --no-backup
+```

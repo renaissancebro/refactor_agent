@@ -95,6 +95,16 @@ refactor --no-backup utils.py
 refactor --type optimize --preview my_file.py
 ```
 
+### Improvement Types
+
+The refactor agent supports 5 specialized improvement categories:
+
+- **`--type refactor`** (Default) - Extracts reusable components into utility modules
+- **`--type optimize`** - Focuses on performance improvements and efficiency
+- **`--type document`** - Adds comprehensive documentation and type hints
+- **`--type style`** - Applies PEP 8 formatting and style improvements
+- **`--type security`** - Reviews code for security vulnerabilities
+
 ### Option 2: Runner Script
 
 **For batch processing:**
@@ -307,11 +317,29 @@ python refactor_cli.py your_file.py --preview
 
 ## 🎯 Use Cases
 
-### Code Cleanup
+### Code Refactoring
 
 - Extract utility functions from large files
 - Organize related functionality into modules
 - Remove duplicate code and improve maintainability
+
+### Performance Optimization
+
+- Identify and fix performance bottlenecks
+- Optimize algorithms and data structures
+- Improve memory usage and efficiency
+
+### Documentation & Style
+
+- Add comprehensive docstrings and type hints
+- Apply PEP 8 formatting standards
+- Improve code readability and maintainability
+
+### Security Review
+
+- Identify potential security vulnerabilities
+- Improve input validation and error handling
+- Follow secure coding best practices
 
 ### Legacy Code Modernization
 
@@ -327,9 +355,9 @@ python refactor_cli.py your_file.py --preview
 
 ### Learning & Development
 
-- Learn refactoring patterns from AI suggestions
+- Learn improvement patterns from AI suggestions
 - Understand code organization best practices
-- Improve coding skills through AI-assisted refactoring
+- Improve coding skills through AI-assisted development
 
 ## 🤝 Contributing
 
