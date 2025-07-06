@@ -1,0 +1,253 @@
+.TH REFACTOR 1 "2025-07-05" "Version 1.0" "AI Code Refactor Tool"
+
+.SH NAME
+refactor \- AI-powered Python code improvement tool
+
+.SH SYNOPSIS
+.B refactor
+[\fB\-\-type\fR \fITYPE\fR] [\fB\-\-preview\fR] [\fB\-\-no\-backup\fR] \fIFILE\fR
+
+.SH DESCRIPTION
+.B refactor
+is an AI-powered command-line tool that improves Python code using OpenAI's GPT-4. It can refactor, optimize, document, style, and secure Python files with specialized AI assistance.
+
+The tool applies changes immediately by default, creating automatic backups for safety. Use the \fB\-\-preview\fR flag to see changes before applying them.
+
+.SH OPTIONS
+
+.TP
+.BR \-\-type ", " \-t " " \fITYPE\fR
+Specify the type of improvement to apply. Available types:
+.RS
+.TP
+.B refactor
+Extract reusable components into utility modules (default)
+.TP
+.B optimize
+Performance optimization and efficiency improvements
+.TP
+.B document
+Add comprehensive documentation and type hints
+.TP
+.B style
+PEP 8 formatting and style improvements
+.TP
+.B security
+Security vulnerability review and improvements
+.RE
+
+.TP
+.BR \-\-preview ", " \-p
+Show preview of changes without applying them to the file.
+
+.TP
+.BR \-\-no\-backup
+Don't create a backup file of the original code.
+
+.TP
+.BR \-\-help ", " \-h
+Show help message and exit.
+
+.SH ARGUMENTS
+
+.TP
+.B FILE
+Path to the Python file to improve.
+
+.SH EXAMPLES
+
+.TP
+.B Basic usage:
+.RS
+.PP
+.EX
+refactor my_file.py
+.EE
+.PP
+Refactors the file, extracting utilities and applying changes immediately.
+.RE
+
+.TP
+.B Performance optimization:
+.RS
+.PP
+.EX
+refactor --type optimize data_processor.py
+.EE
+.PP
+Optimizes the file for better performance and efficiency.
+.RE
+
+.TP
+.B Add documentation:
+.RS
+.PP
+.EX
+refactor --type document api_client.py
+.EE
+.PP
+Adds comprehensive docstrings and type hints to the file.
+.RE
+
+.TP
+.B Preview changes:
+.RS
+.PP
+.EX
+refactor --preview complex_module.py
+.EE
+.PP
+Shows what changes would be made without applying them.
+.RE
+
+.TP
+.B Style improvements:
+.RS
+.PP
+.EX
+refactor --type style utils.py --no-backup
+.EE
+.PP
+Improves code style according to PEP 8 without creating a backup.
+.RE
+
+.TP
+.B Security review:
+.RS
+.PP
+.EX
+refactor --type security auth.py --preview
+.EE
+.PP
+Reviews the file for security vulnerabilities and shows suggested improvements.
+.RE
+
+.SH ENVIRONMENT
+
+.TP
+.B OPENAI_API_KEY
+Required. Your OpenAI API key for accessing GPT-4.
+
+.SH FILES
+
+.TP
+.B ~/.zshrc
+Shell configuration file where the refactor alias is typically added.
+
+.TP
+.B refactor_logs/
+Directory containing JSON logs of all refactor operations.
+
+.TP
+.B FILE.backup
+Backup file created for the original code (unless \fB\-\-no\-backup\fR is used).
+
+.TP
+.B utils/
+Directory created in the same location as the target file for extracted utility modules.
+
+.SH EXIT STATUS
+
+.TP
+.B 0
+Success - file was improved successfully.
+
+.TP
+.B 1
+Error - operation failed (file not found, API error, etc.).
+
+.SH SAFETY FEATURES
+
+.TP
+.B Automatic backups
+Original files are never lost - a .backup file is created by default.
+
+.TP
+.B Preview mode
+Use \fB\-\-preview\fR to see changes before applying them.
+
+.TP
+.B Error handling
+Graceful handling of API errors and file operations.
+
+.TP
+.B Logging
+All operations are logged to refactor_logs/ for debugging and tracking.
+
+.SH IMPROVEMENT TYPES
+
+.TP
+.B refactor (default)
+Extracts reusable functions and classes into separate utility modules. Improves code organization and modularity by creating clean import statements and separating concerns.
+
+.TP
+.B optimize
+Focuses on performance improvements including algorithm optimization, memory usage reduction, and efficiency enhancements. Suggests faster data structures and optimized patterns.
+
+.TP
+.B document
+Adds comprehensive documentation including docstrings, type hints, and inline comments. Improves code readability and maintainability for better collaboration.
+
+.TP
+.B style
+Applies PEP 8 formatting standards including proper spacing, naming conventions, and overall code aesthetics. Makes code more readable and consistent.
+
+.TP
+.B security
+Reviews code for security vulnerabilities including input validation, error handling, and secure coding practices. Suggests improvements for better security posture.
+
+.SH WORKFLOW INTEGRATION
+
+The tool is designed to integrate seamlessly with development workflows:
+
+.TP
+.B Git integration
+Refactor files and commit changes in one workflow.
+
+.TP
+.B IDE integration
+Can be called from IDE terminals or configured as custom commands.
+
+.TP
+.B Batch processing
+Process multiple files using shell loops or scripts.
+
+.SH TROUBLESHOOTING
+
+.TP
+.B "OPENAI_API_KEY not set"
+Set your API key: export OPENAI_API_KEY="your-key-here"
+
+.TP
+.B "File not found"
+Check the file path and ensure the file exists.
+
+.TP
+.B "No JSON block found"
+The AI response was malformed. Check logs and try again.
+
+.TP
+.B "Permission denied"
+Ensure the refactor_alias.sh script is executable.
+
+.SH SEE ALSO
+
+.TP
+.B README.md
+Project overview and quick start guide.
+
+.TP
+.B CLI_SETUP.md
+Detailed CLI setup and usage instructions.
+
+.SH AUTHOR
+
+AI Code Refactor Tool - Built with AutoGen framework and OpenAI GPT-4.
+
+.SH BUGS
+
+Report bugs and issues on the project's GitHub repository.
+
+.SH COPYRIGHT
+
+This project is licensed under the MIT License.
