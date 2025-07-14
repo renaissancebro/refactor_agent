@@ -26,9 +26,22 @@ from concurrent.futures import ThreadPoolExecutor
 current_dir = Path(__file__).parent.parent
 agent_dir = current_dir / "agent"
 sys.path.append(str(agent_dir))
+sys.path.append(str(current_dir))
 
 from main_agent import assistant, user
-from refactor_cli import refactor_file, get_suggestion_prompt
+try:
+    from refactor_cli import refactor_file, get_suggestion_prompt
+except ImportError:
+    # Fallback implementation for testing
+    def get_suggestion_prompt(suggestion_type):
+        prompts = {
+            "refactor": "Extract reusable components and improve code organization",
+            "optimize": "Optimize performance and efficiency", 
+            "document": "Add comprehensive documentation and type hints",
+            "style": "Apply PEP 8 style improvements",
+            "security": "Review and improve security practices"
+        }
+        return prompts.get(suggestion_type, "Improve the code")
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
