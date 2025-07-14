@@ -2,6 +2,12 @@
 
 An intelligent Python code refactoring system that uses GPT-4 to automatically extract reusable components, organize code structure, and maintain clean, modular codebases.
 
+## 💰 API Service Available
+**Try the hosted API service:** [refactoragent.com](https://refactoragent.com) - No setup required!
+- **Starter:** $9.90 for 10 refactors
+- **Professional:** $29.90 for 50 refactors (Most Popular)
+- **Enterprise:** $99.90 for 250 refactors
+
 ## ✨ Features
 
 ### 🧠 AI-Powered Refactoring
@@ -369,7 +375,20 @@ python refactor_cli.py your_file.py --preview
 
 ## 📝 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+### Open Source License
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### Commercial API Service
+The hosted API service has separate commercial terms:
+- **Free to use** the open source code for self-hosting
+- **Paid API service** for hosted/managed usage
+- See [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) for API terms
+
+### What This Means
+- ✅ **Free:** Clone, modify, self-host this code
+- ✅ **Free:** Use for personal/internal projects  
+- ✅ **Free:** Contribute back to the project
+- 💰 **Paid:** Use our hosted API service for convenience
 
 ## 🙏 Acknowledgments
 
